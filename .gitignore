@@ -1,0 +1,7 @@
+/node_modules/
+/npm-debug.log
+/project.sublime-project
+/project.sublime-workspace
+last.sql
+.DS_Store
+.idea

@@ -95,7 +95,9 @@ const validate = schemaValidation(schema, {
 ```
 
 <details>
-<summary>To convert dates from their stringified representations to <code>Date</code> instances, pass <code>convertDates: true</code> option instead of <code>dateStrings: true</code>option.
+<summary>To convert dates from their stringified representations to <code>Date</code> instances, pass <code>convertDates: true</code> option instead of <code>dateStrings: true</code> option.</summary>
+
+######
 
 ```js
 const schema = {
@@ -120,6 +122,7 @@ validateAndConvertDates(data)
 
 data.date instanceof Date === true
 ```
+</details>
 
 #### Custom Types
 
@@ -195,6 +198,102 @@ useCustomTypes({
       return fromYupType(type)
     })
   }
+})
+```
+</details>
+
+##### Context
+
+<details>
+<summary>One can pass <code>context</code> options in order to control the behavior of custom type validators.</summary>
+
+######
+
+<!--
+For example, suppose there's a `language` context parameter. Then, a custom `type: "month"` could be implemented as:
+
+```js
+import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
+
+useCustomTypes({
+  "month": (fromYupType, { context }) => {
+    switch (context.language) {
+      case 'ru':
+        return fromYupType(string().oneOf([
+          null,
+          'янв',
+          'фев',
+          ...
+        ]))
+      case 'en':
+        return fromYupType(string().oneOf([
+          null,
+          'jan',
+          'feb',
+          ...
+        ]))
+      default:
+        throw new Error(`Language not supported: ${context.language}`)
+    }
+  }
+})
+
+const schema = {
+  month: {
+    type: "month",
+    description: "Month name"
+  }
+}
+
+const validateRussian = schemaValidation(schema, {
+  context: {
+    language: 'ru'
+  }
+})
+
+validateRussian({
+  month: 'янв'
+})
+
+const validateEnglish = schemaValidation(schema, {
+  context: {
+    language: 'en'
+  }
+})
+
+validateEnglish({
+  month: 'jan'
+})
+```
+
+Analogous, `context` can be used in a custom type validator.
+-->
+
+```js
+import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
+import { number, string } from 'flexible-json-schema/core'
+
+useCustomTypes({
+  "countryCode": (fromYupType, { context }) => {
+    return fromYupType(context.threeLetterCodes ? string().length(3) : string().length(2))
+  }
+})
+
+const schema = {
+  country: {
+    type: "countryCode",
+    description: "A three-letter or a two-letter country code"
+  }
+}
+
+const validateThreeLetterCode = schemaValidation(schema, {
+  context: {
+    threeLetterCodes: true
+  }
+})
+
+validateThreeLetterCode({
+  country: 'RUS'
 })
 ```
 </details>
@@ -439,11 +538,14 @@ function validate(input) {
 
 ## Parse
 
-Schemas could also be used to parse JSON objects with stringified values. For example, it could be used to parse an HTTP GET request query object (with `structure: "flat"` option).
+Schemas could also be used to parse JSON objects with stringified values. For example, it could be used to parse an HTTP GET request query object (with `structure: "flat"` option). Or, for example, it could be used to parse CSV file data.
 
 <!-- Or, it could be used to parse dates from "date ISO strings" to `Date` instances in a JSON object (with `parseDatesOnly: true` option). -->
 
-### Parse HTTP GET Request Query
+<details>
+<summary>Parse HTTP GET Request Query.</summary>
+
+######
 
 ```js
 import schemaParser from 'flexible-json-schema/parse'
@@ -500,6 +602,92 @@ parse(query) === {
   }
 }
 ```
+</details>
+
+<details>
+<summary>Parse CSV file data.</summary>
+
+######
+
+```js
+import schemaParser from 'flexible-json-schema/parse'
+
+const schema = {
+  id: {
+    type: "number",
+    description: "A numeric ID"
+  },
+  name: {
+    type: "string",
+    description: "A person's name"
+  },
+  dateOfBirth: {
+    type: "date",
+    description: "Date of birth"
+  },
+  address: {
+    street: {
+      type: "string",
+      description: "Street name"
+    },
+    building: {
+      type: "number",
+      description: "Building number"
+    }
+  }
+}
+
+const csvFileContents = `
+id,name,dateOfBirth,street,apt
+1,John Smith,2000-01-01,Main Ave.,10
+`.trim()
+
+// This is a "naive" variant of parsing *.csv file contents.
+// A proper implementation should check for escaped commas in cell values.
+const [
+  id,
+  name,
+  dateOfBirth,
+  street,
+  building
+] = csvFileContents.split('\n')[1].split(',')
+
+const person = {
+  id,
+  name,
+  dateOfBirth,
+  address: {
+    street,
+    building
+  }
+}
+
+person === {
+  id: "1",
+  name: "John Smith",
+  dateOfBirth: "2000-01-01",
+  address: {
+    street: "Main Ave.",
+    building: "10"
+  }
+}
+
+const parse = schemaParser(schema, {
+  inPlace: true,
+  dateFormat: "yyyy-mm-dd"
+})
+
+parse(person) === {
+  id: 1,
+  name: "John Smith",
+  dateOfBirth: new Date("2000-01-01T00:00:00.000Z"),
+  address: {
+    street: "Main Ave.",
+    building: 10
+  }
+}
+```
+</details>
 
 <!--
 ### Parse Dates Only
@@ -544,7 +732,10 @@ parse({
 ```
 -->
 
-### Parse Custom Types
+<details>
+<summary>Parse Custom Types.</summary>
+
+######
 
 A developer can supply "custom" types for schema validation via `useCustomTypes()`. Those custom types are only for validation. By default, any custom types are parsed as strings. If any of those custom types should be parsed in some special way, pass a `parseProperty()` function option when creating a schema parsing function.
 
@@ -567,6 +758,7 @@ const parse = schemaParser(schema, {
   }
 })
 ```
+</details>
 
 ## Errors
 
@@ -627,98 +819,6 @@ By default, schema validation aborts as soon as it encounters the first validati
 ```js
 const validate = schemaValidation(schema, {
   returnAllErrors: true
-})
-```
-
-## Context
-
-One can pass `context` options in order to alter the behavior of custom type validators.
-
-<!--
-For example, suppose there's a `language` context parameter. Then, a custom `type: "month"` could be implemented as:
-
-```js
-import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
-
-useCustomTypes({
-  "month": (fromYupType, { context }) => {
-    switch (context.language) {
-      case 'ru':
-        return fromYupType(string().oneOf([
-          null,
-          'янв',
-          'фев',
-          ...
-        ]))
-      case 'en':
-        return fromYupType(string().oneOf([
-          null,
-          'jan',
-          'feb',
-          ...
-        ]))
-      default:
-        throw new Error(`Language not supported: ${context.language}`)
-    }
-  }
-})
-
-const schema = {
-  month: {
-    type: "month",
-    description: "Month name"
-  }
-}
-
-const validateRussian = schemaValidation(schema, {
-  context: {
-    language: 'ru'
-  }
-})
-
-validateRussian({
-  month: 'янв'
-})
-
-const validateEnglish = schemaValidation(schema, {
-  context: {
-    language: 'en'
-  }
-})
-
-validateEnglish({
-  month: 'jan'
-})
-```
-
-Analogous, `context` can be used in a custom type validator.
--->
-
-```js
-import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
-import { number, string } from 'flexible-json-schema/core'
-
-useCustomTypes({
-  "countryCode": (fromYupType, { context }) => {
-    return fromYupType(context.threeLetterCodes ? string().length(3) : string().length(2))
-  }
-})
-
-const schema = {
-  country: {
-    type: "countryCode",
-    description: "A three-letter or a two-letter country code"
-  }
-}
-
-const validateThreeLetterCode = schemaValidation(schema, {
-  context: {
-    threeLetterCodes: true
-  }
-})
-
-validateThreeLetterCode({
-  country: 'RUS'
 })
 ```
 

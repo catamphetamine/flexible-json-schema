@@ -28,6 +28,11 @@ type Schemas = {
 
 export type DateFormat = 'yyyy-mm-dd';
 
+export interface SchemaError {
+  message: string;
+  path: string;
+}
+
 export interface SchemaValidationError {
   message: string;
   errors?: string[];

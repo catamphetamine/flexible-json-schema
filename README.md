@@ -748,10 +748,10 @@ useCustomTypes({
 })
 
 const parse = schemaParser(schema, {
-  parseProperty({ key, path, value, type, parsePropertyValue, context, createParseError }) {
+  parseProperty({ path, value, type, context, parsePropertyValue, createParseError }) {
     if (type === "percent") {
       // Parse this property value as a number.
-      return parsePropertyValue({ key, path, value, type: 'number' })
+      return parsePropertyValue({ path, value, type: 'number' })
     }
     // Parse this property value as a string.
     return value

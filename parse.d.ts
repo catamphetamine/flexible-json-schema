@@ -20,7 +20,6 @@ interface CreateParseErrorArgs {
 export type CreateParseError = (CreateParseErrorArgs) => SchemaParseError;
 
 interface ParsePropertyValueArgs {
-  key: string;
   path: string;
   type: string;
   value: string;
@@ -29,7 +28,6 @@ interface ParsePropertyValueArgs {
 type ParsePropertyValue = (ParsePropertyValueArgs) => any;
 
 interface ParsePropertyArgs {
-  key: string;
   path: string;
   type: string;
   value: string;

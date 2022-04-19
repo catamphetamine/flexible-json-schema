@@ -135,11 +135,11 @@ import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
 import {
   string,
   boolean,
-  object,
   number,
   date,
-  lazy,
+  object,
   array
+  lazy,
 } from 'flexible-json-schema/core';
 
 useCustomTypes({
@@ -161,53 +161,120 @@ validateMoney({ amount: 100.50 })
 
 Refer to [`yup`](https://github.com/jquense/yup) documentation for defining custom types:
 * An integer between 1 and 10: `number().integer().min(1).max(10)`
-* One of "Apple", "Banana", "Clementine": `string().oneOf([null, 'Apple', 'Banana', 'Clementine'])`
 * An HTTP(S) URL: `string().matches(/^https?:\/\//)`
-* A string whose value depends on some other property value: `string().min(1).when('otherPropertyName', (otherPropertyValue, yupType) => yupType.oneOf(POSSIBLE_VALUES_FOR[otherPropertyValue]))`
-* A phone number: `string().min(1).test('isPhoneNumber', '${path} is not a phone number', (value) => !value || isValidPhoneNumber(value))`
-
-A custom type can be a `yup` type definition, like the examples above, or it can be a function returning a `yup` type definition.
-
-```js
-import { string, date } from 'flexible-json-schema/core'
-
-useCustomTypes({
-  "date": (fromYupType, { context, schemaEntry }) => {
-    if (options.dateStrings) {
-      return fromYupType(string().matches(DATE_ISO_STRING_REGEXP))
-    }
-    return fromYupType(date())
-  }
-})
-```
-
-* `fromYupType` function should wrap any `yup` type returned from such function.
-* `context` is the optional ["context"](#context) parameter that can be passed when creating a schema validation function. It can be used to alter the behavior of custom types.
-* `schemaEntry` is the "schema entry" for this property. It can be used to pass options from the property definition to the custom type validation function in order to alter its behavior.
+* One of "x", "y", "z" (or empty, when `required: false`): `string().oneOf([null, "x", "y", "z"])`
+* An array of colors: `array().of(string().oneOf("red", "green", "blue"))`
 
 <details>
-<summary>Using <code>yup</code> <code>lazy()</code> type constructor requires the type definition be declared as a function.</summary>
+<summary>Using custom validation function.</summary>
+
+######
+
+```js
+// Validates US phone numbers written in `+1` notation.
+// Example: "+12133734253".
+function isValidUsPhoneNumber(value) {
+  return value.length === 12 && value.startsWith("+1")
+}
+
+useCustomTypes({
+  "phone": string().test(
+    'isUsPhoneNumber',
+    '${path} is not a US phone number',
+    (value) => {
+      // A workaround for a `yup` quirk:
+      // `test()` function is also run for `undefined` or `null` values.
+      // https://github.com/jquense/yup/issues/1055
+      if (value === undefined || value === null) {
+        // Ignore `undefined` or `null` values:
+        // those ones should still pass the test
+        // when the property is declared as `required: false`.
+        return true
+      }
+      return isValidUsPhoneNumber(value)
+    }
+  )
+})
+```
+</details>
+
+######
+
+The examples above are simple `yup` type definitions. In some cases though, a property type can't be described in such simple terms. For example, the value could be a number or a string, and both are considered valid. Or the value type could depend on some other property value.
+
+In such complex cases, a property type definition could be implemented as a type constructor function:
+
+```js
+function (fromYupType, { schemaEntry }) {
+  return fromYupType(...)
+}
+```
+
+* `fromYupType()` function should wrap the final `yup` type returned from the type contructor function.
+<!-- * `context` is the optional "context" parameter that can be passed when creating a schema validation function. It can be used to alter the behavior of custom types. -->
+* `schemaEntry` is the "schema entry" for this property. It can be used to pass options from the property definition to the type constructor function in order to alter its behavior.
+
+<details>
+<summary>Using <code>yup</code> <code>lazy()</code> function to dynamically define property type based on the property value.</summary>
 
 ######
 
 ```js
 useCustomTypes({
-  "boolean-or-object": (fromYupType) => {
+  "booleanOrObject": (fromYupType) => {
     return lazy((value) => {
-      const type = typeof value === 'boolean' ? boolean() : object()
-      return fromYupType(type)
+      switch (typeof value) {
+        case 'boolean':
+          return fromYupType(boolean())
+        default:
+          return fromYupType(object())
+      }
+    }
+})
+```
+</details>
+
+<details>
+<summary>Using <code>yup</code> <code>when()</code> function to dynamically define property type based on some other property value.</summary>
+
+######
+
+```js
+import { useCustomTypes } from "flexible-json-schema"
+import { string } from "flexible-json-schema/core"
+
+const STATES = {
+  US: ["TX", "NY", "CA", ...],
+  CA: ["NL", "PE", "QC", ...]
+}
+
+useCustomTypes({
+  // `country` can be one of: "US", "CA".
+  // Adding `null` is required due to `yup`'s internal quirks.
+  // https://github.com/jquense/yup/issues/104
+  "country": string().oneOf([null, "US", "CA"]),
+
+  // `state` depends on `country`.
+  "state": (fromYupType) => {
+    return string().when('country', (country, stringType) => {
+      // If `country` is specified, then `state` must also be specified.
+      if (country) {
+        return fromYupType(stringType.oneOf(STATES[country]))
+      }
+      // If `country` is not specified, then `state` should also be not specified.
+      return fromYupType(stringType.oneOf([null]))
     })
   }
 })
 ```
 </details>
 
-##### Context
-
+<!--
 <details>
-<summary>One can pass <code>context</code> options in order to control the behavior of custom type validators.</summary>
+<summary>Passing <code>context</code> option to dynamically define custom types at runtime.</summary>
 
 ######
+-->
 
 <!--
 For example, suppose there's a `language` context parameter. Then, a custom `type: "month"` could be implemented as:
@@ -269,6 +336,7 @@ validateEnglish({
 Analogous, `context` can be used in a custom type validator.
 -->
 
+<!--
 ```js
 import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
 import { number, string } from 'flexible-json-schema/core'
@@ -297,6 +365,7 @@ validateThreeLetterCode({
 })
 ```
 </details>
+-->
 
 ### Enums
 
@@ -748,7 +817,7 @@ useCustomTypes({
 })
 
 const parse = schemaParser(schema, {
-  parseProperty({ path, value, type, context, parsePropertyValue, createParseError }) {
+  parseProperty({ path, value, type, parsePropertyValue, createParseError }) {
     if (type === "percent") {
       // Parse this property value as a number.
       return parsePropertyValue({ path, value, type: 'number' })

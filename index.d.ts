@@ -28,6 +28,30 @@ type Schemas = {
 
 export type DateFormat = 'yyyy-mm-dd';
 
+// What's returned from `yup` type constructors:
+// * `number()`
+// * `string().when()`
+// * `lazy()`
+// * etc
+type YupType = any;
+
+interface TypeConstructorParameters {
+  schemaEntry: PropertyDescriptor<Schema>;
+}
+
+// Simply adds `.required()` or `.nullable()`.
+type FromYupType = (yupType: YupType) => YupType;
+
+type TypeConstructor = (fromYupType: FromYupType, parameters: TypeConstructorParameters) => YupType;
+
+export type TypeDefinition = YupType | TypeConstructor;
+
+export type Types = {
+  [name: string]: TypeDefinition;
+}
+
+export function useCustomTypes(types: Types): void;
+
 export interface SchemaError {
   message: string;
   path: string;
@@ -60,7 +84,7 @@ export interface SchemaValidationOptions {
   dateStrings?: boolean;
   dateFormat?: DateFormat;
   createValidationError?: CreateValidationError;
-  context?: object;
+  // context?: object;
 }
 
 export type ValidationFunction = (data: object) => object;

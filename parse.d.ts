@@ -33,7 +33,7 @@ interface ParsePropertyArgs {
   value: string;
   parsePropertyValue: ParsePropertyValue;
   createParseError: CreateParseError;
-  context?: object;
+  // context?: object;
 }
 
 export type ParseProperty = (ParsePropertyArgs) => any;
@@ -45,7 +45,7 @@ export interface SchemaParseOptions {
   structure?: Structure;
   parseProperty?: ParseProperty;
   createParseError?: CreateParseError;
-  context?: object;
+  // context?: object;
 }
 
 export type ParseFunction = (data: object) => object;

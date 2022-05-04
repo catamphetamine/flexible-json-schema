@@ -384,7 +384,7 @@ validateProduct({
 })
 ```
 
-`oneOf` only supports [value](#values) types (no arrays, no objects, etc).
+`oneOf` only supports [value](#values) types: no arrays, no objects, etc. All values must be of the same type: strings only, numbers only, etc.
 
 ### Arrays
 
@@ -600,6 +600,81 @@ function validate(input) {
   validateInput(input)
   for (const object of input.objects) {
     validateObject(object)
+  }
+}
+```
+</details>
+
+## One of Type
+
+To define a "one of type" property, add a `oneOfType` entry containing an array of "type variations".
+
+Each "type variation" should be a standard "property descriptor" object also having:
+
+* `is` — a javascript `typeof` type.
+* `when` — (optional) conditions the property value has to meet in case of `is: "object"` or `is: "object[]"`.
+
+`is` can be one of:
+
+* `string`
+* `number`
+* `boolean`
+* `object`
+* `date`
+* An array of any of the above. Example: `string[]`.
+
+`when` conditions may include:
+
+* `propertyName: propertyValue` — The value must be an object with a certain property having a certain value.
+* `propertyName: { $exists: true }` — The value must be an object having a certain property.
+
+<details>
+<summary>An example of defining a <code>oneOfType</code> property.</summary>
+
+######
+
+```js
+const schema = {
+  booleanOrStringOrArrayOrObject: {
+    description: "A boolean, or a string, or an array of strings, or an object with a formula.",
+    oneOfType: [
+      {
+        // "boolean" here is a javascript `typeof` type.
+        is: "boolean",
+        type: "boolean",
+        description: "Can be a boolean"
+      },
+      {
+        // "string" here is a javascript `typeof` type.
+        is: "string",
+        oneOf: ["x", "y", "z"],
+        description: "Can be one of: 'x', 'y', 'z'"
+      },
+      {
+        // "string" here is a javascript `typeof` type.
+        is: "string[]",
+        arrayOf: {
+          oneOf: ["x", "y", "z"]
+        },
+        description: "Can be an array of: 'x', 'y', 'z'"
+      },
+      {
+        // "object" here is a javascript `typeof` type.
+        is: "object",
+        when: {
+          formula: {
+            $exists: true
+          }
+        },
+        description: "Can be an object with a formula",
+        schema: {
+          formula: {
+            type: "string",
+            description: "Some formula"
+          }
+        }
+      }
+    ]
   }
 }
 ```
@@ -939,7 +1014,7 @@ A `when` condition could also be defined based on not some other property's valu
     required: {
       when: {
         one: {
-          $present: true / false
+          $exists: true / false
         }
       }
     }
@@ -965,7 +1040,7 @@ A `when` condition could be a combination of conditions imposed on several prope
     required: {
       when: {
         one: {
-          $present: true
+          $exists: true
         },
         two: "two"
       }

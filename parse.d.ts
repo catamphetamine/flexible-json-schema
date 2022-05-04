@@ -1,5 +1,8 @@
 import {
-  Schema,
+  Schema
+} from './schema.d';
+
+import {
   DateFormat
 } from './index.d';
 

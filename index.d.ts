@@ -1,30 +1,6 @@
-type PropertyType = string;
-
-type ValuePropertyDescriptor = {
-  type: PropertyType;
-  description: string;
-  required?: boolean;
-}
-
-type NestedObjectPropertyDescriptor<Schema> = {
-  shape: Schema;
-  description: string;
-  required?: boolean;
-}
-
-type InlineNestedObjectPropertyDescriptor<Schema> = {
-  [property: string]: Schema;
-}
-
-type PropertyDescriptor<Schema> = ValuePropertyDescriptor | NestedObjectPropertyDescriptor<Schema> | InlineNestedObjectPropertyDescriptor<Schema>;
-
-export type Schema = {
-  [property?: string]: PropertyDescriptor<Schema>;
-}
-
-type Schemas = {
-  [name: string]: Schema;
-}
+import {
+  Schema
+} from './schema.d';
 
 export type DateFormat = 'yyyy-mm-dd';
 
@@ -74,6 +50,10 @@ interface CreateValidationErrorArgs {
 }
 
 export type CreateValidationError = (CreateValidationErrorArgs) => SchemaValidationError;
+
+type Schemas = {
+  [name: string]: Schema;
+}
 
 export interface SchemaValidationOptions {
   schemas: Schemas;

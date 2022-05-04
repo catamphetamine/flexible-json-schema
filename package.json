@@ -1,6 +1,6 @@
 {
   "name": "flexible-json-schema",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -13,6 +13,7 @@
       "default": "./parse.js"
     },
     "./core": {
+      "types": "./core.d.ts",
       "default": "./core.js"
     }
   },

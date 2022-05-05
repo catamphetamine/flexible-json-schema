@@ -41,7 +41,12 @@ interface ParsePropertyArgs {
 
 export type ParseProperty = (ParsePropertyArgs) => any;
 
+type Schemas = {
+  [name: string]: Schema;
+}
+
 export interface SchemaParseOptions {
+  schemas: Schemas;
   inPlace?: boolean;
   dateFormat?: DateFormat;
   parseDatesOnly?: boolean;

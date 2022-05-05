@@ -105,7 +105,10 @@ type PropertyDescriptor<Schema> =
   NestedObjectPropertyDescriptor<Schema> |
   InlineNestedObjectPropertyDescriptor<Schema>;
 
-export type Schema = {
+type ObjectSchema = {
   [property?: string]: PropertyDescriptor<Schema>;
 }
 
+type ValueSchema = PropertyDescriptor;
+
+export type Schema = ObjectSchema | ValueSchema;

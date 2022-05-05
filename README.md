@@ -28,20 +28,23 @@ const validate = schemaValidation({
 
 // Returns the data object if it's valid.
 // Throws an error if the data object is not valid.
-validate({
+return validate({
   name: 'Alex Jones',
   age: 38,
   ...
 })
 ```
 
-A schema consists of one or multiple "entries", for each property.
+A "schema" for `data` would be:
 
-A schema "entry" consists of a property name and a property "descriptor" object specifying:
+* When `data` is a simple value — a property "descriptor" object.
+* When `data` is an object — an object with the same properties where the value of each property is a property "descriptor" object.
 
-* The property type.
-* The property's human-readable description.
-* The property's `required` flag. All properties are considered required unless declared as `required: false`.
+A property "descriptor" object is an object specifying:
+
+* The property type. Either a simple `type` property or a more complex type like `arrayOf` / `oneOf` / `objectOf` / `schema`.
+* The property `description`.
+* The property `required` flag. All properties are considered `required: true` unless declared as `required: false`.
 
 ## Property Types
 

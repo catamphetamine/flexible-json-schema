@@ -33,19 +33,25 @@ export interface SchemaError {
   path: string;
 }
 
+export type ValidationErrorType =
+  'required' |
+  'unknown' |
+  'ambiguous' |
+  'unsupported';
+
 export interface SchemaValidationError {
   message: string;
   errors?: string[];
-  type?: string;
-  path: string;
+  type?: ValidationErrorType;
+  path?: string;
   value: any;
 }
 
 interface CreateValidationErrorArgs {
   message: string;
-  errors?: string[];
-  type?: string;
-  path: string;
+  errors: string[];
+  type?: ValidationErrorType;
+  path?: string;
   value: any;
 }
 

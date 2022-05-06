@@ -8,15 +8,25 @@ import {
 
 export type Structure = 'flat';
 
+export type ParseErrorType =
+  'ambiguous' |
+  'unsupported' |
+  'invalid' |
+  'unknown';
+
 export interface SchemaParseError {
   message: string;
-  path: string;
+  errors: string[];
+  type?: ParseErrorType;
+  path?: string;
   value: any;
 }
 
 interface CreateParseErrorArgs {
   message: string;
-  path: string;
+  errors: string[];
+  type?: ParseErrorType;
+  path?: string;
   value: any;
 }
 

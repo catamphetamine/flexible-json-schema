@@ -434,46 +434,16 @@ validatePerformance({
 })
 ```
 
-### Nested Objects
+### Objects
 
-To define a nested object, use a "nested schema" approach (see the "Nested Schema" section of this document).
+To define an object (for example, a nested object), there're three different approaches:
 
-```js
-const validateProduct = schemaValidation({
-  "type": {
-    "oneOf": ["fruit", "vegetable"],
-    "description": "Product type"
-  },
-  "fruit": {
-    "name": {
-      "type": "string",
-      "description": "Fruit name"
-    },
-    "weight": {
-      "type": "number",
-      "description": "Fruit weight (in kg.)"
-    }
-  }
-})
-
-validateProduct({
-  type: "fruit",
-  fruit: {
-    name: "Banana",
-    weight: 0.2
-  }
-})
-```
-
-## Nested Schema.
-
-Any property of a schema could:
-* Reference another schema by name.
-* Reference another schema by inline schema definition.
-* Directly define a nested object schema.
+* Reference another schema by name. See [Schema Reference](#schema-reference).
+* Define the object's schema in a `schema` property.
+* Define the object's shape.
 
 <details>
-<summary>Referencing a nested schema by name.</summary>
+<summary>Referencing another schema by name.</summary>
 
 ######
 
@@ -508,7 +478,7 @@ const validateArtist = schemaValidation(artistSchema, { schemas })
 </details>
 
 <details>
-<summary>Referencing a nested schema by inline schema definition.</summary>
+<summary>Defining the object's schema in a <code>schema</code> property.</summary>
 
 ######
 
@@ -539,7 +509,7 @@ const validateArtist = schemaValidation(artistSchema)
 </details>
 
 <details>
-<summary>Defining a nested object schema directly.</summary>
+<summary>Define the object's shape.</summary>
 
 ######
 
@@ -565,9 +535,10 @@ const validateArtist = schemaValidation(artistSchema)
 ```
 </details>
 
-### Nested Schema Placeholder
+<!--
+#### "Any Object" Schema
 
-To define a nested object of "any" shape, use an empty object `{}` as its schema.
+To define a nested object of "any" shape, use an empty object `{}` as its schema. This is a legacy "hack" that will be removed in some future version. Don't use.
 
 <details>
 <summary>Example</summary>
@@ -594,7 +565,7 @@ To define a nested object of "any" shape, use an empty object `{}` as its schema
 }
 ```
 
-This hack should not be used out of laziness. An example of a valid use case for this approach is using such "loosely" defined schema in order to have more flexibility when validating such a nested object.
+This feature had been used before [Schema References](#schema-reference) were implemented:
 
 ```js
 const validateInput = schemaValidation(inputSchema)
@@ -607,8 +578,9 @@ function validate(input) {
 }
 ```
 </details>
+-->
 
-## One of Type
+### One of Type
 
 To define a "one of type" property, add a `oneOfType` entry containing an array of "type variations".
 
@@ -623,8 +595,14 @@ Each "type variation" should be a standard "property descriptor" object also hav
 * `number`
 * `boolean`
 * `object`
-* `date`
-* An array of any of the above. Example: `string[]`.
+* `date` — A `Date` instance. If `dateStrings: true` flag is passed, then any `string`.
+* An array of any of the above:
+  * `string[]`
+  * `number[]`
+  * `boolean[]`
+  * `object[]`
+  * `date[]`
+* `any[]` — An array of any elements.
 
 `when` conditions may include:
 
@@ -682,6 +660,46 @@ const schema = {
 }
 ```
 </details>
+
+## Schema Reference
+
+Any property in a schema can reference another schema by name.
+
+```js
+const schema = {
+  artist: {
+    description: 'Artist',
+    schema: 'artist'
+  },
+  discography: {
+    description: 'Artist\'s discography',
+    arrayOf: {
+      schema: 'album'
+    }
+  }
+}
+
+const schemas = {
+  artist: {
+    name: {
+      type: 'string',
+      description: 'Artist name'
+    }
+  },
+  album: {
+    title: {
+      type: 'string',
+      description: 'Album title'
+    },
+    year: {
+      type: 'number',
+      description: 'Album year'
+    }
+  }
+}
+
+const validateArtist = schemaValidation(schema, { schemas })
+```
 
 ## Parse
 
@@ -916,10 +934,10 @@ Validating using a schema might throw a `SchemaValidationError`.
 ```js
 import { SchemaValidationError } from 'flexible-json-schema'
 
-error.message // The error message.
-error.errors // The list of error messages. Only when `returnAllErrors: true` option is passed.
-error.type // One of: "required", "unknown", `undefined`.
-error.path // Example: "somePropertyName".
+error.message // Detailed error message.
+error.errors // A list of original error messages. To include all errors, pass `returnAllErrors: true` option.
+error.type // Error type. One of: "required", "unknown", "ambiguous", "unsupported", `undefined`.
+error.path // Example: "somePropertyName.childObjectProperty". Is `undefined` for root path.
 error.value // The value of the property that failed validation.
 ```
 
@@ -929,7 +947,7 @@ A developer can pass a custom error creation function:
 import schemaValidation from 'flexible-json-schema'
 
 const validate = schemaValidation(schema, {
-  createValidationError({ output, message, type, path, value }) {
+  createValidationError({ message, errors, type, path, value }) {
     return new Error(message)
   }
 })
@@ -942,8 +960,10 @@ Parsing using a schema might throw a `SchemaParseError`.
 ```js
 import { SchemaParseError } from 'flexible-json-schema'
 
-error.message // The error message.
-error.path // Example: "somePropertyName".
+error.message // Detailed error message.
+error.errors // A list of original error messages. Only a single error message in the list.
+error.type // Error type. One of: "ambiguous", "unsupported", "invalid", "unknown", `undefined`.
+error.path // Example: "somePropertyName.childObjectProperty". Is `undefined` for root path.
 error.value // The value of the property that failed to be parsed.
 ```
 
@@ -953,7 +973,7 @@ A developer can pass a custom error creation function:
 import schemaParser from 'flexible-json-schema/parse'
 
 const parse = schemaParser(schema, {
-  createParseError({ message, path, value }) {
+  createParseError({ message, errors, path, value }) {
     return new Error(message)
   }
 })
@@ -971,8 +991,10 @@ const validate = schemaValidation(schema, {
 
 ## Conditional Required
 
+Conditional Required could be used when a property should be `required` depending on some other property.
+
 <details>
-<summary>When a property should be <code>required</code> depending on some other property.</summary>
+<summary>Example</summary>
 
 #####
 

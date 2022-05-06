@@ -56,7 +56,7 @@ type Schemas = {
 }
 
 export interface SchemaParseOptions {
-  schemas: Schemas;
+  schemas?: Schemas;
   inPlace?: boolean;
   dateFormat?: DateFormat;
   parseDatesOnly?: boolean;

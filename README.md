@@ -17,11 +17,13 @@ import schemaValidation from 'flexible-json-schema'
 const validate = schemaValidation({
   "name": {
     "type": "string",
-    "description": "User's name"
+    "description": "User's name",
+    "example": "John Smith"
   },
   "age": {
     "type": "number",
-    "description": "User's age"
+    "description": "User's age",
+    "example": 18
   },
   ...
 })
@@ -902,23 +904,46 @@ parse({
 
 ######
 
-A developer can supply "custom" types for schema validation via `useCustomTypes()`. Those custom types are only for validation. By default, any custom types are parsed as strings. If any of those custom types should be parsed in some special way, pass a `parseProperty()` function option when creating a schema parsing function.
+<!--
+Developers can define "custom" types via `useCustomTypes()`. Even though custom type definitions are only used for validation, the parsing function still requires each custom type to be defined. By default, any custom types are parsed as strings. If any of those custom types should be parsed in some other way, pass a `parseProperty()` function option when creating a schema parsing function.
 
 ```js
 import { useCustomTypes } from 'flexible-json-schema'
+import { number, string } from 'flexible-json-schema/core'
 import schemaParser from 'flexible-json-schema/parse'
 
 useCustomTypes({
-  "percent": number().min(0).max(100)
+  "percent": number().min(0).max(100),
+  "phone": string()
 })
 
 const parse = schemaParser(schema, {
   parseProperty({ path, value, type, parsePropertyValue, createParseError }) {
+    // Parse `type: "percent"` properties as numbers.
     if (type === "percent") {
-      // Parse this property value as a number.
       return parsePropertyValue({ path, value, type: 'number' })
     }
-    // Parse this property value as a string.
+    // Parse any other custom-type properties,
+    // including `type: "phone"` ones, as strings.
+    return value
+  }
+})
+```
+-->
+
+Developers can define "custom" types via `useCustomTypes()` but those custom type definitions are only used for validation. The parsing function ignores any of those custom type definitions and, by default, parses any custom types as strings. If any of those custom types should be parsed in some other way, pass a `parseProperty()` function option when creating a schema parsing function.
+
+```js
+import schemaParser from 'flexible-json-schema/parse'
+
+const parse = schemaParser(schema, {
+  parseProperty({ path, value, type, parsePropertyValue, createParseError }) {
+    // Parse `type: "percent"` properties as numbers.
+    if (type === "percent") {
+      return parsePropertyValue({ path, value, type: 'number' })
+    }
+    // Parse any other custom-type properties,
+    // like `type: "phone"` ones, as strings.
     return value
   }
 })

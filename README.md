@@ -537,10 +537,23 @@ const validateArtist = schemaValidation(artistSchema)
 ```
 </details>
 
-<!--
-#### "Any Object" Schema
+### Any
 
-To define a nested object of "any" shape, use an empty object `{}` as its schema. This is a legacy "hack" that will be removed in some future version. Don't use.
+Although supporting "any" type contradicts the concept of defining a schema by itself, it might be useful in cases when a developer wants to "start small" and outline a schema for some legacy undocumented data structure. So "any" type is considered an intermediate rather than a prominent solution.
+
+#### Any Type
+
+To define a property of "any" type, use `type: "any"`.
+
+Matches any value, any array, any object, etc.
+
+#### Any Array
+
+To define an array of `type: "any"` items, use `arrayOf: "any"`.
+
+#### Any Object
+
+To define an object of "any" shape, use an empty object `{}` as its schema.
 
 <details>
 <summary>Example</summary>
@@ -567,6 +580,7 @@ To define a nested object of "any" shape, use an empty object `{}` as its schema
 }
 ```
 
+<!--
 This feature had been used before [Schema References](#schema-reference) were implemented:
 
 ```js
@@ -579,8 +593,8 @@ function validate(input) {
   }
 }
 ```
-</details>
 -->
+</details>
 
 ### One of Type
 
@@ -931,7 +945,7 @@ const parse = schemaParser(schema, {
 ```
 -->
 
-Developers can define "custom" types via `useCustomTypes()` but those custom type definitions are only used for validation. The parsing function ignores any of those custom type definitions and, by default, parses any custom types as strings. If any of those custom types should be parsed in some other way, pass a `parseProperty()` function option when creating a schema parsing function.
+Developers can define "custom" types via `useCustomTypes()` but those custom type definitions are only used for validation. The parsing function ignores any of those custom type definitions and, by default, leaves those property values as is. If any of those custom types should be parsed in some special way, pass a `parseProperty()` function option when creating a schema parsing function.
 
 ```js
 import schemaParser from 'flexible-json-schema/parse'

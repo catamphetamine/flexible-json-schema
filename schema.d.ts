@@ -1,6 +1,23 @@
+type Type_ =
+  'string' |
+  'number' |
+  'integer' |
+  'positiveNumber' |
+  'positiveInteger' |
+  'nonNegativeNumber' |
+  'nonNegativeInteger' |
+  'boolean' |
+  'date' |
+  'email' |
+  'url' |
+  'relativeUrl' |
+  'any';
+
 // Developers can define their own "custom" types
 // so the list of property types is not enumerated here.
-type Type = string;
+type CustomType = string;
+
+type Type = Type_ | CustomType;
 
 type WhenRules = {
   $exists: string;

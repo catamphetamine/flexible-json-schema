@@ -1119,3 +1119,11 @@ A `when` condition could be a combination of conditions imposed on several prope
 
 * `strict: boolean` — Pass `strict: false` to indicate that there can be other properties not described in the schema. By default, it throws when it encounters an "unknown" property. The `strict: false` flag should be considered a hacky "legacy" workaround that was used in `CC-Public-API/user/create/index.js` to support the hacky legacy "access request" / "user account create" case.
 -->
+
+## Tests
+
+To run tests:
+
+```
+npm test
+```

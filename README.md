@@ -620,10 +620,13 @@ Each "type variation" should be a standard "property descriptor" object also hav
   * `date[]`
 * `any[]` — An array of any elements.
 
-`when` conditions may include:
+`when` condition must be an object describing the value object's properties:
 
-* `propertyName: propertyValue` — The value must be an object with a certain property having a certain value.
-* `propertyName: { $exists: true }` — The value must be an object having a certain property.
+  * `propertyName: propertyValue` — The property value must be equal to a certain value.
+  * `propertyName: { ...rules }` — The property must adhere to a set of "rules":
+    * `$exists: true / false` — Whether or not the property should exist.
+    * `$notEqual: value` — The property value must not be equal to `value`.
+    * `$oneOf: [...]` — The property value must be one of ...
 
 <details>
 <summary>An example of defining a <code>oneOfType</code> property.</summary>
@@ -1085,6 +1088,12 @@ A `when` condition could also be defined based on not some other property's valu
   }
 }
 ```
+
+Available `when` condition "rules":
+
+* `$exists: true / false` — Whether or not the property should exist.
+* `$notEqual: value` — The property value must not be equal to `value`.
+* `$oneOf: [...]` — The property value must be one of ...
 
 A `when` condition could be a combination of conditions imposed on several properties, which would be treated as a logical `AND`:
 

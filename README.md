@@ -408,11 +408,24 @@ validateProducts({
 })
 ```
 
-By default, arrays aren't allowed to be empty. To allow empty arrays, pass `allowEmptyArrays: true` option.
+By default, arrays aren't allowed to be empty. To allow any array to be empty, pass `allowEmptyArrays: true` option.
 
 ```js
 const validate = schemaValidation(schema, { allowEmptyArrays: true })
 ```
+
+To allow only a specific array to be empty, add `nonEmpty: false` property in its property descriptor object:
+
+```js
+const schema = {
+  array: {
+    arrayOf: 'string',
+    nonEmpty: false
+  }
+}
+```
+
+Conversely, when `allowEmptyArrays: true` global setting is used, `nonEmpty: true` negates the effect of that setting on a particlar array.
 
 ### Maps
 

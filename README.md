@@ -735,7 +735,44 @@ const validateArtist = schemaValidation(schema, { schemas })
 
 ## Parse
 
-Schemas could also be used to parse JSON objects with stringified values. For example, it could be used to parse an HTTP GET request query object (with `structure: "flat"` option). Or, for example, it could be used to parse CSV file data.
+Schemas could also be used to parse JSON objects with stringified values. In that case, each "leaf" property of the data sctructure should be a string.
+
+```js
+{
+  "name": "John Smith",
+  "age": "38",
+  "occupation": ["salesman", "marketing"],
+  "children": [{
+    "name": "Jane Smith",
+    "age": "6"
+  }]
+}
+```
+
+The most-commonly-used scenarios for parsing JSON objects using a schema are:
+
+* Parsing a CSV file.
+  * First, a CSV file is parsed into a list rows of cells having a "flat" data structure.
+  * Then, those "flat" rows of data get converted from arrays to JSON objects, usually with property nesting. The value of each "leaf" property should stay being a string.
+  * After that, the list of JSON objects is parsed using a schema in order for every "leaf" string property to be converted into an appropriate "native" type:
+    * string
+    * number
+    * boolean
+    * date
+    * etc.
+
+* Parsing URL query parameters.
+  * First, an object with query parameter values is extracted from a URL, each query parameter value being a string.
+  * Then, the object gets parsed using a schema in order for every query parameter value to be converted into an appropriate "native" type:
+    * string
+    * number
+    * boolean
+    * date
+    * etc.
+
+When parsing URL query parameters, it might be required to convert some of the query parameter values to "complex" data structures such as arrays or objects. In that case, pass `structure: "flat"` option when parsing query parameters object using a schema, which will enable parsing such "complex" data structures from their "stringified" representations. For example, if some property is defined as an array or an object in a schema, and the `structure` option is `"flat"`, then the parsing function will attempt to parse the property value by calling `JSON.parse()` on it.
+
+A known "gotcha": The result of `JSON.parse()` will then get parsed recursively according to the schema, which means that all "leaf" property values of such stringified data structure should still be strings. So, for example, an array of numbers `[1, 2, 3]` should be stringified as `"[\"1\",\"2\",\"3\"]"`, which is kinda counter-intuitive, but that's how it's currently implemented.
 
 <!-- Or, it could be used to parse dates from "date ISO strings" to `Date` instances in a JSON object (with `parseDatesOnly: true` option). -->
 
@@ -745,7 +782,7 @@ Schemas could also be used to parse JSON objects with stringified values. For ex
 ######
 
 ```js
-import schemaParser from 'flexible-json-schema/parse'
+import schemaParser from "flexible-json-schema/parse"
 
 const querySchema = {
   id: {
@@ -759,6 +796,14 @@ const querySchema = {
   status: {
     oneOf: ["PENDING", "FINALIZED"],
     description: "The item's status"
+  },
+  tags: {
+    arrayOf: "string",
+    description: "The item's tags"
+  },
+  scores: {
+    arrayOf: "number",
+    description: "The item's scores"
   },
   createdAt: {
     type: "date",
@@ -780,12 +825,13 @@ const query = {
   "active": "1",
   "status": "PENDING",
   "tags": "[\"home\",\"accessory\"]",
+  "scores": "[\"1.5\",\"2.0\"]",
   "createdAt": "2000-01-01T00:00:00.000Z",
-  "owner": "{\"id\": \"456\"}"
+  "owner": "{\"id\":\"456\"}"
 }
 
 const parse = schemaParser(schema, {
-  structure: 'flat'
+  structure: "flat"
 })
 
 parse(query) === {
@@ -793,6 +839,7 @@ parse(query) === {
   "active": true,
   "status": "PENDING",
   "tags": ["home", "accessory"],
+  "scores": [1.5, 2],
   "createdAt": new Date("2000-01-01T00:00:00.000Z"),
   "owner": {
     "id": 456

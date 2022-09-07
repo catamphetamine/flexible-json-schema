@@ -1181,6 +1181,37 @@ A `when` condition could be a combination of conditions imposed on several prope
   }
 }
 ```
+
+A `when` condition could be a combination of `OR` conditions:
+
+```js
+{
+  one: {
+    oneOf: [...],
+    description: "One"
+  },
+  two: {
+    oneOf: [...],
+    description: "Two"
+  },
+  three: {
+    type: "text",
+    description: "Three",
+    required: {
+      when: {
+        $or: [
+          one: {
+            $exists: true
+          },
+          two: {
+            $exists: true
+          }
+        ]
+      }
+    }
+  }
+}
+```
 </details>
 
 <!--

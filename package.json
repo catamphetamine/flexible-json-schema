@@ -1,6 +1,6 @@
 {
   "name": "flexible-json-schema",
-  "version": "0.11.22",
+  "version": "0.11.23",
   "type": "module",
   "sideEffects": false,
   "exports": {

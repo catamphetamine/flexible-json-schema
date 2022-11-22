@@ -62,7 +62,8 @@ Base value types:
 * `"nonNegativeInteger"` — A "non-negative" integer.
 * `"boolean"` — `true` or `false`.
 * `"string"` — A string.
-* `"date"` — A `Date` string or a `Date` instance.
+* `"date"` — A `Date` instance.
+* `"dateString"` — A `Date` string, in [ISO](https://en.wikipedia.org/wiki/ISO_8601) format: `YYYY-MM-DDTHH:mm:ss.sssZ`.
 
 Utility value types:
 
@@ -82,7 +83,7 @@ const validate = schemaValidation(schema, {
 
 #### Dates
 
-By default, all `type: "date"` properties are required to be instances of `Date` class. However, when JSON objects are stringified, `Date`s are converted to "date ISO strings" like `"2000-01-01T00:00:00.000Z"`. To support those, pass `dateStrings: true` flag.
+By default, all `type: "date"` properties are required to be instances of `Date` class. However, when JSON objects are stringified, all `Date` properties are converted to "date ISO strings" like `"2000-01-01T00:00:00.000Z"`. To use `type: "date"` for those stringified dates, pass `dateStrings: true` option.
 
 ```js
 const validate = schemaValidation(schema, {
@@ -100,7 +101,7 @@ const validate = schemaValidation(schema, {
 ```
 
 <details>
-<summary>To convert dates from their stringified representations to <code>Date</code> instances, pass <code>convertDates: true</code> option instead of <code>dateStrings: true</code> option.</summary>
+<summary>The validation function could also convert dates from their stringified representations to <code>Date</code> instances. To do that, pass <code>convertDates: true</code> option instead of <code>dateStrings: true</code> option.</summary>
 
 ######
 

@@ -494,6 +494,48 @@ const validateArtist = schemaValidation(artistSchema, { schemas })
 </details>
 
 <details>
+<summary>Referencing another schema by name (via <code>extends</code> keyword) while extending it with custom properties.</summary>
+
+######
+
+```js
+const artistSchema = {
+  name: {
+    type: 'string',
+    description: 'Artist name'
+  },
+  discography: {
+    arrayOf: {
+      description: 'An album in the artist\'s discography: all base `album` properties + rating',
+      extends: 'album',
+      schema: {
+        rating: {
+          type: 'number',
+          description: 'The album\'s rating among the other albums of the artist'
+        }
+      }
+    }
+  }
+}
+
+const schemas = {
+  album: {
+    title: {
+      type: 'string',
+      description: 'Album title'
+    },
+    year: {
+      type: 'number',
+      description: 'Album year'
+    }
+  }
+}
+
+const validateArtist = schemaValidation(artistSchema, { schemas })
+```
+</details>
+
+<details>
 <summary>Defining the object's schema in a <code>schema</code> property.</summary>
 
 ######

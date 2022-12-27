@@ -1,6 +1,6 @@
 {
   "name": "flexible-json-schema",
-  "version": "0.11.24",
+  "version": "0.11.25",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -20,16 +20,16 @@
   },
   "scripts": {
     "test": "node --experimental-json-modules node_modules/mocha/bin/_mocha --require ./test/setup.js --reporter spec --colors --bail --exit --recursive \"./{,!(node_modules)/**/}*.test.js\"",
-    "test-coverage": "istanbul cover -x \"commonjs/**\" -x \"modules/**\" -x \"*.test.js\" node --experimental-json-modules node_modules/mocha/bin/_mocha -- --compilers js:babel-core/register --colors --reporter dot --require ./test/setup.js \"./{,!(node_modules)/**/}*.test.js\" --recursive",
-    "test-travis": "istanbul cover -x \"commonjs/**\" -x \"modules/**\" -x \"*.test.js\" node --experimental-json-modules node_modules/mocha/bin/_mocha --report lcovonly -- --compilers js:babel-core/register --colors --reporter spec --require ./test/setup.js \"./{,!(node_modules)/**/}*.test.js\" --recursive",
+    "test-coverage": "node --experimental-json-modules node_modules/istanbul/lib/cli.js cover -x \"commonjs/**\" -x \"modules/**\" -x \"*.test.js\" node --experimental-json-modules node_modules/mocha/bin/_mocha -- --colors --reporter dot --require ./test/setup.js \"./{,!(node_modules)/**/}*.test.js\" --recursive",
+    "test-travis": "istanbul cover -x \"commonjs/**\" -x \"modules/**\" -x \"*.test.js\" node --experimental-json-modules node_modules/mocha/bin/_mocha --report lcovonly -- --colors --reporter spec --require ./test/setup.js \"./{,!(node_modules)/**/}*.test.js\" --recursive",
     "prepublishOnly": "npm test"
   },
   "dependencies": {
     "yup": "^0.32.11"
   },
   "devDependencies": {
-    "chai": "^4.3.6",
-    "mocha": "^9.2.2"
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
   },
   "repository": {
     "type": "git",

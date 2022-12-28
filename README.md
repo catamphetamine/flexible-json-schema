@@ -506,7 +506,6 @@ const artistSchema = {
   },
   discography: {
     arrayOf: {
-      description: 'An album in the artist\'s discography: all base `album` properties + rating',
       extends: 'album',
       schema: {
         rating: {

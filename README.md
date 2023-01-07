@@ -777,26 +777,35 @@ const validateArtist = schemaValidation(schema, { schemas })
 
 ## Parse
 
-Schemas could also be used to parse JSON objects with stringified values. In that case, each "leaf" property of the data sctructure should be a string.
+Schemas could also be used to "parse" JSON objects with stringified values in order to convert those values from strings to their appropriate "native" type: string, number, boolean, date, etc.
+
+An example of a JSON object with stringified values:
 
 ```js
 {
   "name": "John Smith",
-  "age": "38",
+  "age": "35",
+  "married": "1",
+  "title": "Manager",
   "occupation": ["salesman", "marketing"],
   "children": [{
-    "name": "Jane Smith",
-    "age": "6"
+    "name": "Jane Brown",
+    "sex": "female",
+    "age": "4"
   }]
 }
 ```
 
-The most-commonly-used scenarios for parsing JSON objects using a schema are:
+In that case, each and every "leaf" property of the data tree sctructure must be a string, unless being `undefined` or `null`.
+
+The most-commonly-used scenarios for parsing JSON objects with stringified values are:
 
 * Parsing a CSV file.
-  * First, a CSV file is parsed into a list rows of cells having a "flat" data structure.
-  * Then, those "flat" rows of data get converted from arrays to JSON objects, usually with property nesting. The value of each "leaf" property should stay being a string.
-  * After that, the list of JSON objects is parsed using a schema in order for every "leaf" string property to be converted into an appropriate "native" type:
+  * First, a CSV file should be parsed into a list rows of cells having a "flat" data structure.
+    * Example: `[["Column 1", "Column 2", ...], ["Value 1", "Value 2", ...], ...]`.
+  * Then, those "flat" rows of data should be converted from arrays to JSON objects, usually with property nesting. The value of each "leaf" property should stay being a string.
+    * Example: `[{ "Column 1": "Value 1", "Column 2": "Value 2", ... }, ...]`.
+  * After that, the list of JSON objects should be "parsed" using a schema in order for every "leaf" string property to be converted into an appropriate "native" type:
     * string
     * number
     * boolean
@@ -804,17 +813,17 @@ The most-commonly-used scenarios for parsing JSON objects using a schema are:
     * etc.
 
 * Parsing URL query parameters.
-  * First, an object with query parameter values is extracted from a URL, each query parameter value being a string.
-  * Then, the object gets parsed using a schema in order for every query parameter value to be converted into an appropriate "native" type:
+  * First, all query parameter values should be extracted from the URL into a `query` object.
+    * Example: `{ "param1": "value1", "param2": "value2", ... }`.
+  * Then, the `query` object should be "parsed" using a schema in order to convert every query parameter's string value into an appropriate "native" type:
     * string
     * number
     * boolean
     * date
     * etc.
-
-When parsing URL query parameters, it might be required to convert some of the query parameter values to "complex" data structures such as arrays or objects. In that case, pass `structure: "flat"` option when parsing query parameters object using a schema, which will enable parsing such "complex" data structures from their "stringified" representations. For example, if some property is defined as an array or an object in a schema, and the `structure` option is `"flat"`, then the parsing function will attempt to parse the property value by calling `JSON.parse()` on it.
-
-A known "gotcha": The result of `JSON.parse()` will then get parsed recursively according to the schema, which means that all "leaf" property values of such stringified data structure should still be strings. So, for example, an array of numbers `[1, 2, 3]` should be stringified as `"[\"1\",\"2\",\"3\"]"`, which is kinda counter-intuitive, but that's how it's currently implemented.
+  * When some URL query parameter values are "complex" data structures such as arrays or objects:
+    * First, those values should be `JSON.stringify()`-ed before putting them in the URL. For example, if there's a query parameter called `filters` being an object `{...}` then the URL query part should look like: `?filters=${JSON.stringify(filters)}`. Same goes for arrays.
+    * Second, one should pass `structure: "flat"` option when "parsing" the extracted `query` object using a schema, which enables `JSON.parse()`-ing such "complex" data structures back from their "stringified" representations. See the example below.
 
 <!-- Or, it could be used to parse dates from "date ISO strings" to `Date` instances in a JSON object (with `parseDatesOnly: true` option). -->
 
@@ -867,9 +876,9 @@ const query = {
   "active": "1",
   "status": "PENDING",
   "tags": "[\"home\",\"accessory\"]",
-  "scores": "[\"1.5\",\"2.0\"]",
+  "scores": "[1.5,2.0]",
   "createdAt": "2000-01-01T00:00:00.000Z",
-  "owner": "{\"id\":\"456\"}"
+  "owner": "{\"id\":456}"
 }
 
 const parse = schemaParser(schema, {

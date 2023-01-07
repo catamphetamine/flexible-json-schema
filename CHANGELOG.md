@@ -1,3 +1,8 @@
+0.12.0 / 07.01.2023
+===================
+
+* (breaking change) Changed how `structure: "flat"` works with `JSON.stringify()`-ed objects and arrays: they no longer have to have all their "leaf" properties to be strings. In other words, the previously used "weird" behavior in that case was replaced with a non-"weird" one.
+
 0.11.25 / 27.12.2022
 ===================
 

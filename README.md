@@ -37,16 +37,15 @@ return validate({
 })
 ```
 
-A "schema" for `data` would be:
+The data could be an object or it could be a non-object.
 
-* When `data` is a simple value — a property "descriptor" object.
-* When `data` is an object — an object with the same properties where the value of each property is a property "descriptor" object.
+The tree structure of a schema should correspond to the tree structure of the data.
 
-A property "descriptor" object is an object specifying:
+Each property in a schema should correspond to the same property in the data, describing it via a "property descriptor" — an object specifying:
 
-* The property type. Either a simple `type` property or a more complex type like `arrayOf` / `oneOf` / `objectOf` / `schema`.
-* The property `description`.
-* The property `required` flag. All properties are considered `required: true` unless declared as `required: false`.
+* The property type. Either a "simple" `type` like `"string"` / `"number"` / etc or a more "complex" type like `arrayOf` / `oneOf` / `objectOf` / `schema`.
+* The property `description`. For documentation purposes.
+* The `required` flag. All properties are considered `required: true` by default unless explicitly declared as `required: false`.
 
 ## Property Types
 

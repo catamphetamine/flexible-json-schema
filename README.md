@@ -785,7 +785,7 @@ An example of a JSON object with stringified values:
 {
   "name": "John Smith",
   "age": "35",
-  "married": "1",
+  "married": "true",
   "title": "Manager",
   "occupation": ["salesman", "marketing"],
   "children": [{
@@ -826,6 +826,22 @@ The most-commonly-used scenarios for parsing JSON objects with stringified value
     * Second, one should pass `structure: "flat"` option when "parsing" the extracted `query` object using a schema, which enables `JSON.parse()`-ing such "complex" data structures back from their "stringified" representations. See the example below.
 
 <!-- Or, it could be used to parse dates from "date ISO strings" to `Date` instances in a JSON object (with `parseDatesOnly: true` option). -->
+
+### Parse `boolean`
+
+When parsing `boolean` values, it supports multiple possible formats for convenience:
+
+* `"true"` or `"false"`
+  * `"true"` → `true`
+  * `"false"` → `false`
+* `"1"` or `"0"`
+  * `"1"` → `true`
+  * `"0"` → `false`
+* `"✓"` or `"✕"`
+  * `"✓"` → `true`
+  * `"✕"` → `false`
+
+### Examples
 
 <details>
 <summary>Parse HTTP GET Request Query.</summary>
@@ -873,7 +889,7 @@ const querySchema = {
 
 const query = {
   "id": "123",
-  "active": "1",
+  "active": "true",
   "status": "PENDING",
   "tags": "[\"home\",\"accessory\"]",
   "scores": "[1.5,2.0]",

@@ -67,7 +67,7 @@ Base value types:
 Utility value types:
 
 * `"email"` — An email address. Example: `"example@domain.com"`.
-* `"url"` — A valid URL (absolute or relative). Example: `"https://google.com"`.
+* `"url"` — A valid absolute URL. Example: `"https://google.com"`.
 * `"relativeUrl"` — A valid relative URL. Example: `"/users/123"`.
 
 #### Strings

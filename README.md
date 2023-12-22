@@ -609,6 +609,8 @@ To define an array of `type: "any"` items, use `arrayOf: "any"`.
 
 To define an object of "any" shape, use an empty object `{}` as its schema.
 
+To define an empty object, use an empty object `{}` as its schema and `empty: true` property.
+
 <details>
 <summary>Example</summary>
 

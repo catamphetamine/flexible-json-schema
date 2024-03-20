@@ -684,6 +684,7 @@ Each "type variation" should be a standard "property descriptor" object also hav
     * `$notEqual: value` — The property value must not be equal to `value`.
     * `$oneOf: [...]` — The property value must be one of ...
     * `$notOneOf: [...]` — The property value must not be one of ...
+    * `$is: "..."` — The property value must be of type ... (see the [list](#one-of-type) of possible `is` types)
 
 <details>
 <summary>An example of defining a <code>oneOfType</code> property.</summary>
@@ -1224,6 +1225,7 @@ Available `when` condition "rules":
 * `$notEqual: value` — The property value must not be equal to `value`.
 * `$oneOf: [...]` — The property value must be one of ...
 * `$notOneOf: [...]` — The property value must not be one of ...
+* `$is: "..."` — The property value must be of type ... (see the [list](#one-of-type) of possible `is` types)
 
 A `when` condition could be a combination of conditions imposed on several properties, which would be treated as a logical `AND`:
 

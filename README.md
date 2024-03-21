@@ -659,7 +659,9 @@ To define a "one of type" property, add a `oneOfType` entry containing an array 
 Each "type variation" should be a standard "property descriptor" object also having:
 
 * `is` — a javascript `typeof` type.
-* `when` — (optional) conditions the property value has to meet in case of `is: "object"` or `is: "object[]"`.
+* `when` — (optional) conditions the property value has to meet in case of `is: "object"` or `is: "object[]"`:
+  * In case of `is: "object"`, `when` will test the properties of the object.
+  * In case of `is: "object[]"`, `when` will test the properties of each object in the array — all of them must match.
 
 `is` can be one of:
 
@@ -1197,7 +1199,9 @@ So when `reason` is `"OTHER"`, `reasonNotes` are required. Such "conditional req
 }
 ```
 
-A `when` condition could also be defined based on not some other property's value but rather the fact of that property being present or not:
+In the schema above, `when` describes the conditions that the object's properties must meet.
+
+Besides basic property value equality testing, there also exist different "operators". For example, to test based on some property being present or not:
 
 ```js
 {

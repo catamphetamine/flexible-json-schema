@@ -1125,6 +1125,7 @@ A developer can pass a custom error creation function:
 import schemaValidation from 'flexible-json-schema'
 
 const validate = schemaValidation(schema, {
+  // See TypeScript typings for the list of possible values for the `type` property.
   createValidationError({ message, errors, type, path, value }) {
     return new Error(message)
   }
@@ -1151,7 +1152,8 @@ A developer can pass a custom error creation function:
 import schemaParser from 'flexible-json-schema/parse'
 
 const parse = schemaParser(schema, {
-  createParseError({ message, errors, path, value }) {
+  // See TypeScript typings for the list of possible values for the `type` property.
+  createParseError({ message, errors, type, path, value }) {
     return new Error(message)
   }
 })

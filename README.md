@@ -70,6 +70,10 @@ Utility value types:
 * `"url"` — A valid absolute URL. Example: `"https://google.com"`.
 * `"relativeUrl"` — A valid relative URL. Example: `"/users/123"`.
 
+Special case types:
+
+* `null` — Only allows `null` value. Can be used in conjunction with `required: false` to define properties that should be missing or set to `null`.
+
 #### Strings
 
 By default, empty strings aren't allowed. To allow empty strings, pass `allowEmptyStrings: true` option. Empty strings are still interpreted as "missing values", so if a property should support empty string value then declare it as `required: false`.

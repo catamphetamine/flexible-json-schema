@@ -1,3 +1,10 @@
+0.13.0 / 02.08.2024
+===================
+
+* Partially rewrote some parts of the code in a cleaner way.
+* Updated to `yup@1.x`.
+* Added new `type`: `null`.
+
 0.12.0 / 07.01.2023
 ===================
 

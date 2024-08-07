@@ -43,9 +43,14 @@ The tree structure of a schema should correspond to the tree structure of the da
 
 Each property in a schema should correspond to the same property in the data, describing it via a "property descriptor" — an object specifying:
 
-* The property type. Either a "simple" `type` like `"string"` / `"number"` / etc or a more "complex" type like `arrayOf` / `oneOf` / `objectOf` / `schema`.
-* The property `description`. For documentation purposes.
-* The `required` flag. All properties are considered `required: true` by default unless explicitly declared as `required: false`.
+* Type descriptor — Describes the type of the value. Could be either a "simple" `type` property having a value like `"string"` / `"number"` / etc, or a more "complex" property like `arrayOf` / `oneOf` / `objectOf` / `schema`.
+* Description — A human-readable description of the property, for documentation purposes.
+* Required or not? — (optional) A boolean `required` flag. Is `required: true` by default.
+  * `required: true` — The property must exist and its value can't be `null` or an empty string.
+  * `required: false` — The property can be omitted and its value can be `null`.
+* Can be `null` or not? — (optional) (advanced) A boolean `nullable` flag. Has no default behavior. Can be used to differentiate between `null` and `undefined` values:
+  * `required: true` and `nullable: true` — The property must exist but its value is allowed to be `null`.
+  * `required: false` and `nullable: false` — The property can be omitted but its value can't be `null` when it exists.
 
 ## Property Types
 
@@ -60,9 +65,9 @@ Base value types:
 * `"nonNegativeNumber"` — A "non-negative" number.
 * `"nonNegativeInteger"` — A "non-negative" integer.
 * `"boolean"` — `true` or `false`.
-* `"string"` — A string.
-* `"date"` — A `Date` instance.
-* `"dateString"` — A `Date` string, in [ISO](https://en.wikipedia.org/wiki/ISO_8601) format: `YYYY-MM-DDTHH:mm:ss.sssZ`.
+* `"string"` — A string. Specifically, a non-empty string, unless [`allowEmptyStrings: true`](#strings) option is passed.
+* `"date"` — A `Date` instance.
+* `"dateString"` — A `Date` string, in [ISO](https://en.wikipedia.org/wiki/ISO_8601) format: `YYYY-MM-DDTHH:mm:ss.sssZ`.
 
 Utility value types:
 
@@ -76,7 +81,7 @@ Special case types:
 
 #### Strings
 
-By default, empty strings aren't allowed. To allow empty strings, pass `allowEmptyStrings: true` option. Empty strings are still interpreted as "missing values", so if a property should support empty string value then declare it as `required: false`.
+By default, empty strings aren't allowed. To allow empty strings, pass `allowEmptyStrings: true` option. This will allow empty strings, although they'll still be interpreted as "missing values", so if a property should support an empty string value then it should also be declared as `required: false`.
 
 ```js
 const validate = schemaValidation(schema, {

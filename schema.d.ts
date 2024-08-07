@@ -17,7 +17,7 @@ type Type_ =
 // so the list of property types is not enumerated here.
 type CustomType = string;
 
-type Type = Type_ | CustomType;
+type Type = Type_ | null | CustomType;
 
 type WhenRules = {
   $exists: string;
@@ -35,10 +35,13 @@ type ConditionalRequired = {
 
 type Required = boolean | ConditionalRequired;
 
+type Nullable = boolean;
+
 type Value = {
   type: Type;
   description: string;
   required?: Required;
+  nullable?: Nullable;
 }
 
 type ValueWithSchemaReference = {

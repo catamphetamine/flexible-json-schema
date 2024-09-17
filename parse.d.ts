@@ -1,10 +1,11 @@
 import {
   Schema
-} from './schema.d';
+} from './schema.d.js';
 
 import {
-  DateFormat
-} from './index.d';
+  DateFormat,
+  Types
+} from './index.d.js';
 
 export type Structure = 'flat';
 
@@ -63,6 +64,7 @@ export interface SchemaParseOptions {
   structure?: Structure;
   parseProperty?: ParseProperty;
   createParseError?: CreateParseError;
+  customTypes?: Types;
   // context?: object;
 }
 

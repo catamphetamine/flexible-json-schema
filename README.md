@@ -140,12 +140,18 @@ data.date instanceof Date === true
 
 #### Custom Types
 
-To extend the default list of value types, or to override some of them, one can use `useCustomTypes()` function:
+To extend the default list of value types, or to override some of them, one can use `useCustomTypes()` function.
+
+To create custom types, one could use the basic [`yup`](https://www.npmjs.com/package/yup) type constructors that're re-exported from `flexible-json-schema/core` subpackage, along with a few "utility" functions that're exported from `flexible-json-schema/type` subpackage.
 
 ```js
 import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
 
 // These are simply re-exports from `yup`.
+//
+// See `yup` docs for defining custom types:
+// https://www.npmjs.com/package/yup
+//
 import {
   string,
   boolean,
@@ -153,34 +159,84 @@ import {
   date,
   object,
   array
-  lazy,
 } from 'flexible-json-schema/core';
 
+// These are utility functions that could be used to create custom types.
+import {
+  arrayOfOneOf,
+  conditional,
+  depends,
+  filter,
+  oneOf,
+  regexp
+} from 'flexible-json-schema/type';
+
 useCustomTypes({
-  // See `yup` docs for defining custom types:
-  // https://www.npmjs.com/package/yup
-  "currency": number().min(0)
+  // A `yup` type definition. See `yup` docs for more info.
+  "currencyAmount": number().min(0),
+
+  // `oneOf()` creates a type that could be any value from the list.
+  "currencyType": oneOf(["USD", "CAD"]),
+
+  // `arrayOfOneOf()` creates a type that could be an array of the values from the list.
+  "colors": arrayOfOneOf(["red", "green", "blue"]),
+
+  // `conditional()` dynamically creates a type based on the value.
+  // Example: Suppose that `rating` could only be `0...10` or `999`.
+  "rating": conditional((value) => {
+    if (value >= 0 && value <= 10) {
+      return number().min(0).max(10);
+    }
+    return number().min(999).max(999);
+  }),
+
+  // `depends()` defines a property that depends on another property.
+  // Example: a list of possible country regions depends on the country.
+  "country": oneOf(['US', 'CA']),
+  "countryRegion": depends(['country'], string(), ([country], type) => {
+    if (country === 'US') {
+      return oneOf(type, ['TX', 'CA', ...]);
+    } else {
+      return oneOf(type, ['ON', 'NS', ...]);
+    }
+  }),
+
+  // `filter()` defines a type that must satisfy some condition.
+  "phone": filter(string(), value => value.length === 10),
+
+  // `regexp()` defines a string that must match a regular expression.
+  "url": regexp(/^https?:\/\//)
 })
 
 const schema = {
   amount: {
-    type: "currency",
-    description: "Money amount"
+    type: "currencyAmount",
+    description: "Currency amount"
+  },
+  currency: {
+    type: "currencyType",
+    description: "Currency type"
   }
 }
 
 const validateMoney = schemaValidation(schema)
-validateMoney({ amount: 100.50 })
+validateMoney({ amount: 100.50, currency: 'USD' })
 ```
 
-Refer to [`yup`](https://github.com/jquense/yup) documentation for defining custom types:
+#### Custom Types (`yup`)
+
+When not using the "utility" functions that're expored from `flexible-json-schema/type` subpackage, or when there's no suitable function there, one could define custom types using just the functions provided by [`yup`](https://www.npmjs.com/package/yup). This way it would be much more flexible but also more complex.
+
+Refer to [`yup`](https://github.com/jquense/yup) documentation for more info on defining custom types.
+
+Common examples:
 * An integer between 1 and 10: `number().integer().min(1).max(10)`
 * An HTTP(S) URL: `string().matches(/^https?:\/\//)`
 * One of "x", "y", "z" (or empty, when `required: false`): `string().oneOf([null, "x", "y", "z"])`
 * An array of colors: `array().of(string().oneOf("red", "green", "blue"))`
 
 <details>
-<summary>Using custom validation function.</summary>
+<summary>Any validation logic via <code>.test()</code></summary>
 
 ######
 
@@ -214,7 +270,7 @@ useCustomTypes({
 
 ######
 
-The examples above are simple `yup` type definitions. In some cases though, a property type can't be described in such simple terms. For example, the value could be a number or a string, and both are considered valid. Or the value type could depend on some other property value.
+The examples above are considered quite simple `yup` type definitions. In some cases though, a property type can't be described in such simple terms. For example, a property value could be either a `number` or a `string`, but both are considered valid in general. Or there might be cases when one property value could depend on some other property value.
 
 In such complex cases, a property type definition could be implemented as a type constructor function:
 
@@ -226,7 +282,7 @@ function (fromYupType, { schemaEntry }) {
 
 * `fromYupType()` function should wrap the final `yup` type returned from the type contructor function.
 <!-- * `context` is the optional "context" parameter that can be passed when creating a schema validation function. It can be used to alter the behavior of custom types. -->
-* `schemaEntry` is the "schema entry" for this property. It can be used to pass options from the property definition to the type constructor function in order to alter its behavior.
+* `schemaEntry` is the "schema entry" for this property. It could be used to read any options from the "schema entry" definition and then act accordingly.
 
 <details>
 <summary>Using <code>yup</code> <code>lazy()</code> function to dynamically define property type based on the property value.</summary>
@@ -270,7 +326,7 @@ useCustomTypes({
 
   // `state` depends on `country`.
   "state": (fromYupType) => {
-    return string().when('country', (country, stringType) => {
+    return string().when(["country"], ([country], stringType) => {
       // If `country` is specified, then `state` must also be specified.
       if (country) {
         return fromYupType(stringType.oneOf(STATES[country]))
@@ -691,7 +747,7 @@ Each "type variation" should be a standard "property descriptor" object also hav
 
   * `propertyName: propertyValue` — The property value must be equal to a certain value.
   * `propertyName: { ...rules }` — The property must adhere to a set of "rules":
-    * `$exists: true / false` — Whether or not the property should exist.
+    * `$exists: true / false` — Whether or not the property should "exist", "exist" meaning "not `undefined` or `null`".
     * `$notEqual: value` — The property value must not be equal to `value`.
     * `$oneOf: [...]` — The property value must be one of ...
     * `$notOneOf: [...]` — The property value must not be one of ...
@@ -1236,7 +1292,7 @@ Besides basic property value equality testing, there also exist different "opera
 
 Available `when` condition "rules":
 
-* `$exists: true / false` — Whether or not the property should exist.
+* `$exists: true / false` — Whether or not the property should "exist", "exist" meaning "not `undefined` or `null`".
 * `$notEqual: value` — The property value must not be equal to `value`.
 * `$oneOf: [...]` — The property value must be one of ...
 * `$notOneOf: [...]` — The property value must not be one of ...

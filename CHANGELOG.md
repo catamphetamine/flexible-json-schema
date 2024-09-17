@@ -1,3 +1,16 @@
+0.13.3 / 17.09.2024
+===================
+
+* Added custom type creation utility functions:
+  * `conditional`
+  * `depends`
+  * `filter`
+  * `oneOf`
+  * `arrayOfOneOf`
+  * `regexp`
+
+* Fixed custom `date()` types not being parsed automatically when validating data.
+
 0.13.0 / 02.08.2024
 ===================
 

@@ -1,6 +1,10 @@
 import {
+  AnySchema
+} from 'yup';
+
+import {
   Schema
-} from './schema.d';
+} from './schema.d.js';
 
 export type DateFormat = 'yyyy-mm-dd';
 
@@ -9,7 +13,7 @@ export type DateFormat = 'yyyy-mm-dd';
 // * `string().when()`
 // * `lazy()`
 // * etc
-type YupType = any;
+type YupType = AnySchema;
 
 interface TypeConstructorParameters {
   schemaEntry: PropertyDescriptor<Schema>;
@@ -22,9 +26,7 @@ type TypeConstructor = (fromYupType: FromYupType, parameters: TypeConstructorPar
 
 export type TypeDefinition = YupType | TypeConstructor;
 
-export type Types = {
-  [name: string]: TypeDefinition;
-}
+export type Types = Record<string, TypeDefinition>;
 
 export function useCustomTypes(types: Types): void;
 
@@ -69,6 +71,7 @@ export interface SchemaValidationOptions {
   convertDates?: boolean;
   dateStrings?: boolean;
   dateFormat?: DateFormat;
+  customTypes?: Types;
   createValidationError?: CreateValidationError;
   // context?: object;
 }

@@ -21,6 +21,7 @@ export function filter<V, T extends AnySchema<V>>(type: T, test: (value: V) => b
 
 interface ArrayOfOneOfOptions {
   nonEmpty?: boolean;
+  allowEmpty?: boolean;
 }
 
 // "TypeScript integration: how to use ArraySchema properly?"
@@ -50,6 +51,7 @@ export function oneOf<T extends AnySchema<V>, Values extends Array<V>, V extends
 
 interface RegExpOptions {
   nonEmpty?: boolean;
+  allowEmpty?: boolean;
 }
 
 export function regexp(regularExpression: RegExp, options?: RegExpOptions): StringSchema;

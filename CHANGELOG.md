@@ -1,3 +1,8 @@
+0.13.5 / 13.11.2024
+===================
+
+* Added `allowEmpty: true` option as a counterpart for `nonEmpty: false`.
+
 0.13.3 / 17.09.2024
 ===================
 

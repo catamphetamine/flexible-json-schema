@@ -179,6 +179,7 @@ useCustomTypes({
   "currencyType": oneOf(["USD", "CAD"]),
 
   // `arrayOfOneOf()` creates a type that could be an array of the values from the list.
+  // Supported options: `allowEmpty: true` / `nonEmpty: false`.
   "colors": arrayOfOneOf(["red", "green", "blue"]),
 
   // `conditional()` dynamically creates a type based on the value.
@@ -205,6 +206,8 @@ useCustomTypes({
   "phone": filter(string(), value => value.length === 10),
 
   // `regexp()` defines a string that must match a regular expression.
+  // By default, empty strings aren't allowed.
+  // Supported options: `allowEmpty: true` / `nonEmpty: false`.
   "url": regexp(/^https?:\/\//)
 })
 
@@ -479,18 +482,16 @@ By default, arrays aren't allowed to be empty. To allow any array to be empty, p
 const validate = schemaValidation(schema, { allowEmptyArrays: true })
 ```
 
-To allow only a specific array to be empty, add `nonEmpty: false` property in its property descriptor object:
+The global `allowEmptyArrays` setting can be overridden for individual arrays by specifying `allowEmpty: true` or `nonEmpty: true` property in the descriptor object:
 
 ```js
 const schema = {
   array: {
     arrayOf: 'string',
-    nonEmpty: false
+    allowEmpty: true
   }
 }
 ```
-
-Conversely, when `allowEmptyArrays: true` global setting is used, `nonEmpty: true` negates the effect of that setting on a particlar array.
 
 ### Maps
 

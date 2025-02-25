@@ -725,7 +725,7 @@ To define a "one of type" property, add a `oneOfType` entry containing an array 
 Each "type variation" should be a standard "property descriptor" object also having:
 
 * `is` — a javascript `typeof` type.
-* `when` — (optional) conditions the property value has to meet in case of `is: "object"` or `is: "object[]"`:
+* `when` — (optional) the [conditions](#when) that the property value has to match in case of `is: "object"` or `is: "object[]"`:
   * In case of `is: "object"`, `when` will test the properties of the object.
   * In case of `is: "object[]"`, `when` will test the properties of each object in the array — all of them must match.
 
@@ -743,17 +743,6 @@ Each "type variation" should be a standard "property descriptor" object also hav
   * `object[]`
   * `date[]`
 * `any[]` — An array of any elements.
-
-`when` condition must be an object describing the value object's properties:
-
-  * `propertyName: propertyValue` — The property value must be equal to a certain value.
-  * `propertyName: { ...rules }` — The property must adhere to a set of "rules":
-    * `$exists: true / false` — Whether or not the property should "exist", "exist" meaning "not `undefined` or `null`".
-    * `$notEqual: value` — The property value must not be equal to `value`.
-    * `$oneOf: [...]` — The property value must be one of ...
-    * `$notOneOf: [...]` — The property value must not be one of ...
-    * `$is: "..."` — The property value must be of type ... (see the [list](#one-of-type) of possible `is` types)
-    * `$isNot: "..."` — The property value must not be of type ... (see the [list](#one-of-type) of possible `is` types)
 
 <details>
 <summary>An example of defining a <code>oneOfType</code> property.</summary>
@@ -806,6 +795,59 @@ const schema = {
 }
 ```
 </details>
+
+## `when`
+
+`when` object describes conditions that an object must match. The shape of `when` is:
+
+  * `[propertyName]: propertyValue` — The object must have a property called `[propertyName]` and its value must be equal to `propertyValue`.
+  * `[propertyName]: conditions` — The object must have a property called `[propertyName]` and its value must meet all of the conditions described by the `conditions` object. The shape of `conditions` object is:
+    * `$exists: true` — The property must "exist", i.e. the value must not be `undefined` or `null`.
+    * `$exists: false` — The property must not "exist", i.e. the value must be `undefined` or `null`.
+    * `$notEqual: value` — The value must not be equal to `value`.
+    * `$oneOf: [...]` — The value must be one of `[...]`.
+    * `$notOneOf: [...]` — The value must not be one of `[...]`.
+    * `$is: "..."` — The value must be of type `"..."` (see the [list](#one-of-type) of possible `is` types).
+    * `$isNot: "..."` — The value must not be of type `"..."` (see the [list](#one-of-type) of possible `is` types).
+  * `$or: [conditions1, conditions2, ...]` — Allows providing a list of `conditions` objects only one of which is required to match.
+
+Examples:
+
+```js
+// Both conditions must be met:
+// * `one` property exists
+// * `two` property value is "b"
+const when = {
+  one: {
+    $exists: true
+  },
+  two: "b"
+}
+
+// Matches:
+// * { one: 'a', two: 'b', three: 'c' }
+```
+
+```js
+// Any of the conditions must be met:
+// * `one` property exists
+// * `two` property exists
+const when = {
+  $or: [
+    one: {
+      $exists: true
+    },
+    two: {
+      $exists: true
+    }
+  ]
+}
+
+// Matches:
+// * { one: 'a', three: 'c' }
+// * { two: 'b', three: 'c' }
+// * { one: 'a', two: 'b', three: 'c' }
+```
 
 ## Schema Reference
 
@@ -1268,96 +1310,7 @@ So when `reason` is `"OTHER"`, `reasonNotes` are required. Such "conditional req
 }
 ```
 
-In the schema above, `when` describes the conditions that the object's properties must meet.
-
-Besides basic property value equality testing, there also exist different "operators". For example, to test based on some property being present or not:
-
-```js
-{
-  one: {
-    oneOf: [...],
-    description: "One"
-  },
-  two: {
-    type: "text",
-    description: "Two",
-    required: {
-      when: {
-        one: {
-          $exists: true / false
-        }
-      }
-    }
-  }
-}
-```
-
-Available `when` condition "rules":
-
-* `$exists: true / false` — Whether or not the property should "exist", "exist" meaning "not `undefined` or `null`".
-* `$notEqual: value` — The property value must not be equal to `value`.
-* `$oneOf: [...]` — The property value must be one of ...
-* `$notOneOf: [...]` — The property value must not be one of ...
-* `$is: "..."` — The property value must be of type ... (see the [list](#one-of-type) of possible `is` types)
-* `$isNot: "..."` — The property value must not be of type ... (see the [list](#one-of-type) of possible `is` types)
-
-A `when` condition could be a combination of conditions imposed on several properties, which would be treated as a logical `AND`:
-
-```js
-{
-  one: {
-    oneOf: [...],
-    description: "One"
-  },
-  two: {
-    oneOf: [...],
-    description: "Two"
-  },
-  three: {
-    type: "text",
-    description: "Three",
-    required: {
-      when: {
-        one: {
-          $exists: true
-        },
-        two: "two"
-      }
-    }
-  }
-}
-```
-
-A `when` condition could be a combination of `OR` conditions:
-
-```js
-{
-  one: {
-    oneOf: [...],
-    description: "One"
-  },
-  two: {
-    oneOf: [...],
-    description: "Two"
-  },
-  three: {
-    type: "text",
-    description: "Three",
-    required: {
-      when: {
-        $or: [
-          one: {
-            $exists: true
-          },
-          two: {
-            $exists: true
-          }
-        ]
-      }
-    }
-  }
-}
-```
+In the schema above, `when` describes the [conditions](#when) that the object's properties must meet.
 </details>
 
 <!--

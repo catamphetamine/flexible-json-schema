@@ -169,7 +169,7 @@ import {
   filter,
   oneOf,
   regexp
-} from 'flexible-json-schema/type';
+} from 'flexible-json-schema/type'
 
 useCustomTypes({
   // A `yup` type definition. See `yup` docs for more info.
@@ -495,12 +495,11 @@ const schema = {
 
 ### Maps
 
-To define a uniform-type map, use `objectOf: <type>` property.
+To define a uniform-type map, use `objectOf: <type-or-schema>` property.
 
 ```js
 const validatePerformance = schemaValidation({
   scores: {
-    // Could also be an `objectOf` nested objects, etc.
     objectOf: "number",
     description: "Player scores"
   }
@@ -509,11 +508,80 @@ const validatePerformance = schemaValidation({
 validatePerformance({
   scores: {
     player1: 1.25,
-    player2: 2.40,
-    player3: 4.10
+    player2: 2.40
   }
 })
 ```
+
+```js
+const validatePerformance = schemaValidation({
+  scores: {
+    objectOf: {
+      score: {
+        type: "number",
+        description: "Score"
+      }
+    },
+    description: "Player scores"
+  }
+})
+
+validatePerformance({
+  scores: {
+    player1: {
+      score: 1.25
+    },
+    ...
+  }
+})
+```
+
+The set of possible keys of an object could be restricted by specifying a `keyOneOf` property.
+
+<!-- The set of possible keys of an object could be restricted by specifying a `key` property that describes the type of a key. And as a shorthand to `key: { oneOf: [...] }`, one could just specify a `keyOneOf: [...]` property. -->
+
+```js
+const validatePerformance = schemaValidation({
+  scores: {
+    objectOf: "number",
+    keyOneOf: ["Alice", "Bob"],
+    description: "Player scores"
+  }
+})
+
+validatePerformance({
+  scores: {
+    Alice: 1.25,
+    Bob: 2.40
+  }
+})
+```
+
+<!--
+```js
+import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
+import { oneOf } from 'flexible-json-schema/type'
+
+useCustomTypes({
+  "AliceOrBob": oneOf(["Alice", "Bob"])
+})
+
+const validatePerformance = schemaValidation({
+  scores: {
+    objectOf: "number",
+    key: "AliceOrBob",
+    description: "Player scores"
+  }
+})
+
+validatePerformance({
+  scores: {
+    Alice: 1.25,
+    Bob: 2.40
+  }
+})
+```
+-->
 
 ### Objects
 

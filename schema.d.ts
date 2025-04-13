@@ -64,6 +64,8 @@ type ArrayOf<Schema> = {
 
 type ObjectOf<Schema> = {
   objectOf: Of<Schema>;
+  // key?: Type;
+  keyOneOf?: string[];
   description: string;
   required?: Required;
 }

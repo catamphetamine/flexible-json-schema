@@ -66,6 +66,7 @@ type ObjectOf<Schema> = {
   objectOf: Of<Schema>;
   // key?: Type;
   keyOneOf?: string[];
+  keyType?: CustomType;
   description: string;
   required?: Required;
 }

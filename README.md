@@ -538,8 +538,6 @@ validatePerformance({
 
 The set of possible keys of an object could be restricted by specifying a `keyOneOf` property.
 
-<!-- The set of possible keys of an object could be restricted by specifying a `key` property that describes the type of a key. And as a shorthand to `key: { oneOf: [...] }`, one could just specify a `keyOneOf: [...]` property. -->
-
 ```js
 const validatePerformance = schemaValidation({
   scores: {
@@ -557,7 +555,8 @@ validatePerformance({
 })
 ```
 
-<!--
+Alternative to specifying `keyOneOf`, one could specify a `keyType`.
+
 ```js
 import schemaValidation, { useCustomTypes } from 'flexible-json-schema'
 import { oneOf } from 'flexible-json-schema/type'
@@ -569,7 +568,7 @@ useCustomTypes({
 const validatePerformance = schemaValidation({
   scores: {
     objectOf: "number",
-    key: "AliceOrBob",
+    keyType: "AliceOrBob",
     description: "Player scores"
   }
 })
@@ -581,7 +580,6 @@ validatePerformance({
   }
 })
 ```
--->
 
 ### Objects
 

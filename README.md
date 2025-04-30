@@ -476,6 +476,26 @@ validateProducts({
 })
 ```
 
+Or, for example, an array of objects with a certain shape:
+
+```js
+const validateProducts = schemaValidation({
+  "fruits": {
+    "arrayOf": {
+      "name": {
+        "type": "string",
+        "description": "Fruit name"
+      }
+    },
+    "description": "A list of fruits"
+  }
+})
+
+validateProducts({
+  fruits: [{ name: "Apple" }, { name: "Banana" }]
+})
+```
+
 By default, arrays aren't allowed to be empty. To allow any array to be empty, pass `allowEmptyArrays: true` option.
 
 ```js
